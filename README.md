@@ -26,7 +26,103 @@ This commands includes
 • Other IP Commands e.g. show ip route etc.
 <BR>
 
+## Program:
+client
+```
+import socket
+
+s = socket.socket()
+s.connect(('localhost', 8000))
+
+print("Connected. Type any network command (ipconfig, ping, etc.) or 'exit'.")
+
+while True:
+    cmd = input("Enter command: ").strip()
+    if not cmd:
+        continue
+
+    s.send(cmd.encode('utf-8'))
+    
+    if cmd.lower() == "exit":
+        print("Exiting...")
+        break
+
+    output = s.recv(65536).decode()
+    print("\n----- RESULT -----")
+    print(output)
+    print("------------------\n")
+
+s.close()
+```
+server
+```
+import socket
+import subprocess
+import platform
+
+s = socket.socket()
+s.bind(('localhost', 8000))
+s.listen(1)
+print("Server listening on port 8000...")
+c, addr = s.accept()
+print("Connected:", addr)
+
+while True:
+    command = c.recv(1024).decode().strip()
+    if not command or command.lower() == 'exit':
+        print("Client disconnected.")
+        break
+
+    try:
+        # Run ANY command the client sends
+        completed = subprocess.run(
+            command, 
+            capture_output=True, 
+            text=True, 
+            shell=True
+        )
+        output = completed.stdout + (completed.stderr or "")
+    except Exception as e:
+        output = f"Command failed: {e}"
+
+    c.sendall(output.encode('utf-8'))
+
+c.close()
+s.close()
+```
 ## Output
 
+### netstat
+<img width="936" height="743" alt="Screenshot 2025-11-13 102743" src="https://github.com/user-attachments/assets/2c7dff00-20f5-4f9a-ae64-a69b07643eca" />
+
+### ipconfig
+<img width="907" height="821" alt="Screenshot 2025-11-13 102710" src="https://github.com/user-attachments/assets/c9fba767-9092-4acf-a7b1-82b579f21d2a" />
+
+### ping
+<img width="941" height="472" alt="Screenshot 2025-11-13 102824" src="https://github.com/user-attachments/assets/b6b43aeb-3c3d-4cd0-98c9-13c3503f34ae" />
+
+
+### tracert
+<img width="913" height="534" alt="Screenshot 2025-11-13 102845" src="https://github.com/user-attachments/assets/095d987b-bd79-4fc8-b04b-713bee68c0f1" />
+
+### nslookup
+<img width="915" height="838" alt="Screenshot 2025-11-13 104148" src="https://github.com/user-attachments/assets/4554e5e3-c89e-445f-9d47-f2ffc85ea8e1" />
+
+### getmac
+<img width="933" height="253" alt="Screenshot 2025-11-13 104239" src="https://github.com/user-attachments/assets/d7f13d63-f648-413a-adf5-33e5caa25e8f" />
+
+### hostname
+<img width="885" height="172" alt="Screenshot 2025-11-13 104311" src="https://github.com/user-attachments/assets/bdfa9688-dee4-4d3f-9dbd-d7cea9247d62" />
+
+### nbtstat
+
+<img width="919" height="684" alt="Screenshot 2025-11-13 104427" src="https://github.com/user-attachments/assets/ff5e7728-8fbe-430f-821c-e5986a4ea3b5" />
+
+### arp
+<img width="911" height="828" alt="Screenshot 2025-11-13 104510" src="https://github.com/user-attachments/assets/33faa729-dd8e-4e06-a237-fb98dd3624ef" />
+
+### systeminfo
+<img width="881" height="987" alt="Screenshot 2025-11-13 104648" src="https://github.com/user-attachments/assets/be960277-2b2b-417a-9d07-c1265d729230" />
+
 ## Result
-Thus Execution of Network commands Performed 
+Thus Execution of Network commands Performed.
